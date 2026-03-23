@@ -20,8 +20,14 @@ public class Tetromino : MonoBehaviour
     // Controls whether the piece should continue its automatic fall.
     private bool isFalling = true;
 
+    // Cached board manager used for bounds checks.
+    private GameManager gameManager;
+
     private void Start()
     {
+        // Cache the board manager once to keep movement checks simple and fast.
+        gameManager = FindFirstObjectByType<GameManager>();
+
         Debug.Log($"Tetromino component ready on '{gameObject.name}' at board position {boardPosition}.");
 
         // Build visuals when the object starts so the piece is visible in Play mode.
@@ -31,6 +37,9 @@ public class Tetromino : MonoBehaviour
 
     private void Update()
     {
+        // Horizontal movement is always handled as one cell per key press.
+        HandleHorizontalInput();
+
         // Only advance automatic falling while this tetromino is active.
         if (!isFalling)
         {
@@ -56,6 +65,29 @@ public class Tetromino : MonoBehaviour
     }
 
     /// <summary>
+    /// Reads left/right keyboard input and attempts one-cell grid movement.
+    /// </summary>
+    private void HandleHorizontalInput()
+    {
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            if (CanMove(Vector2Int.left))
+            {
+                Move(Vector2Int.left);
+                Debug.Log($"Tetromino moved LEFT to board position {boardPosition}.");
+            }
+        }
+        else if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            if (CanMove(Vector2Int.right))
+            {
+                Move(Vector2Int.right);
+                Debug.Log($"Tetromino moved RIGHT to board position {boardPosition}.");
+            }
+        }
+    }
+
+    /// <summary>
     /// Returns true when every cell can move one row downward without crossing y = 0.
     /// </summary>
     private bool CanMoveDown()
@@ -69,6 +101,48 @@ public class Tetromino : MonoBehaviour
         {
             Vector2Int nextCellPosition = boardPosition + cells[i] + Vector2Int.down;
 
+            if (nextCellPosition.y < 0)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Returns true if every cell stays inside board limits after applying a direction.
+    /// </summary>
+    private bool CanMove(Vector2Int direction)
+    {
+        if (cells == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < cells.Length; i++)
+        {
+            Vector2Int nextCellPosition = boardPosition + cells[i] + direction;
+
+            // Keep horizontal movement inside board bounds.
+            if (nextCellPosition.x < 0)
+            {
+                return false;
+            }
+
+            // Use the configured board width when GameManager exists.
+            if (gameManager != null && nextCellPosition.x >= gameManager.boardWidth)
+            {
+                return false;
+            }
+
+            // Fallback board width if no manager is found.
+            if (gameManager == null && nextCellPosition.x >= 10)
+            {
+                return false;
+            }
+
+            // Keep bottom boundary behavior unchanged.
             if (nextCellPosition.y < 0)
             {
                 return false;
