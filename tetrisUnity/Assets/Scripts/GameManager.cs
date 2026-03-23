@@ -6,6 +6,12 @@ public class GameManager : MonoBehaviour
     public int boardWidth = 10;
     public int boardHeight = 20;
 
+    // Size of each debug cell in world units.
+    public float cellSize = 1f;
+
+    // World-space center point of the board debug view.
+    public Vector3 boardOrigin = Vector3.zero;
+
     // True means that board cell is occupied.
     private bool[,] board;
 
@@ -49,6 +55,35 @@ public class GameManager : MonoBehaviour
             for (int y = 0; y < boardHeight; y++)
             {
                 board[x, y] = false;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Draws a centered wire grid in the Scene view to visualize the Tetris board.
+    /// </summary>
+    private void OnDrawGizmos()
+    {
+        if (boardWidth <= 0 || boardHeight <= 0 || cellSize <= 0f)
+        {
+            return;
+        }
+
+        Gizmos.color = Color.cyan;
+
+        // Start from bottom-left so the whole board stays centered around boardOrigin.
+        Vector3 bottomLeft = boardOrigin + new Vector3(
+            (-boardWidth * cellSize * 0.5f) + (cellSize * 0.5f),
+            (-boardHeight * cellSize * 0.5f) + (cellSize * 0.5f),
+            0f
+        );
+
+        for (int x = 0; x < boardWidth; x++)
+        {
+            for (int y = 0; y < boardHeight; y++)
+            {
+                Vector3 cellCenter = bottomLeft + new Vector3(x * cellSize, y * cellSize, 0f);
+                Gizmos.DrawWireCube(cellCenter, new Vector3(cellSize, cellSize, 0f));
             }
         }
     }
