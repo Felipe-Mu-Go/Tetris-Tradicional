@@ -14,11 +14,17 @@ public class Tetromino : MonoBehaviour
     // Tracks elapsed time since the last automatic fall step.
     private float fallTimer = 0f;
 
+    // Runtime visual cubes, one per tetromino cell.
+    private GameObject[] blockVisuals;
+
     private void Start()
     {
         Debug.Log($"Tetromino component ready on '{gameObject.name}' at board position {boardPosition}.");
-    }
 
+        // Build visuals when the object starts so the piece is visible in Play mode.
+        BuildVisuals();
+        UpdateVisuals();
+    }
 
     private void Update()
     {
@@ -34,6 +40,10 @@ public class Tetromino : MonoBehaviour
     public void Move(Vector2Int direction)
     {
         boardPosition += direction;
+
+        // Keep visuals synchronized with logical board movement.
+        UpdateVisuals();
+
         Debug.Log($"Tetromino '{gameObject.name}' moved to board position {boardPosition}.");
     }
 
@@ -50,7 +60,72 @@ public class Tetromino : MonoBehaviour
             new Vector2Int(2, 0)
         };
 
+        // Rebuild visuals when shape data changes.
+        BuildVisuals();
+        UpdateVisuals();
+
         Debug.Log($"Initialized tetromino '{gameObject.name}' as I shape with {cells.Length} cells.");
+    }
+
+    /// <summary>
+    /// Creates one cube child GameObject for each tetromino cell.
+    /// </summary>
+    public void BuildVisuals()
+    {
+        if (cells == null || cells.Length == 0)
+        {
+            return;
+        }
+
+        // Clear previously generated block visuals before rebuilding.
+        if (blockVisuals != null)
+        {
+            for (int i = 0; i < blockVisuals.Length; i++)
+            {
+                if (blockVisuals[i] != null)
+                {
+                    Destroy(blockVisuals[i]);
+                }
+            }
+        }
+
+        blockVisuals = new GameObject[cells.Length];
+
+        for (int i = 0; i < cells.Length; i++)
+        {
+            GameObject block = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            block.name = $"Block_{i}";
+
+            // Parent each cube to this tetromino and keep scale simple.
+            block.transform.SetParent(transform, false);
+            block.transform.localScale = Vector3.one;
+
+            blockVisuals[i] = block;
+        }
+    }
+
+    /// <summary>
+    /// Updates each visual cube position from board position + local cell offset.
+    /// </summary>
+    public void UpdateVisuals()
+    {
+        if (cells == null || blockVisuals == null)
+        {
+            return;
+        }
+
+        int count = Mathf.Min(cells.Length, blockVisuals.Length);
+
+        for (int i = 0; i < count; i++)
+        {
+            if (blockVisuals[i] == null)
+            {
+                continue;
+            }
+
+            Vector2Int boardCellPosition = boardPosition + cells[i];
+            blockVisuals[i].transform.localPosition = new Vector3(boardCellPosition.x, boardCellPosition.y, 0f);
+        }
     }
 
     /// <summary>
