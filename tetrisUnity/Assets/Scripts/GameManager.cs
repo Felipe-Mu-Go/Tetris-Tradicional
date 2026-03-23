@@ -18,6 +18,23 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         InitializeBoard();
+        SpawnInitialTetromino();
+    }
+
+
+    /// <summary>
+    /// Spawns the first tetromino used as the foundation for gameplay work.
+    /// </summary>
+    private void SpawnInitialTetromino()
+    {
+        GameObject tetrominoObject = new GameObject("Tetromino_I");
+        Tetromino tetromino = tetrominoObject.AddComponent<Tetromino>();
+
+        tetromino.boardPosition = new Vector2Int(boardWidth / 2, boardHeight - 1);
+        tetromino.InitializeAsIShape();
+
+        Vector2Int[] cellPositions = tetromino.GetCellPositions();
+        Debug.Log($"Spawned {tetrominoObject.name} with cells: {string.Join(", ", cellPositions)}");
     }
 
     /// <summary>
