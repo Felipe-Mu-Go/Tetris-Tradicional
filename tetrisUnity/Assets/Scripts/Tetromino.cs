@@ -17,6 +17,9 @@ public class Tetromino : MonoBehaviour
     // Runtime visual cubes, one per tetromino cell.
     private GameObject[] blockVisuals;
 
+    // Controls whether the piece should continue its automatic fall.
+    private bool isFalling = true;
+
     private void Start()
     {
         Debug.Log($"Tetromino component ready on '{gameObject.name}' at board position {boardPosition}.");
@@ -28,13 +31,51 @@ public class Tetromino : MonoBehaviour
 
     private void Update()
     {
+        // Only advance automatic falling while this tetromino is active.
+        if (!isFalling)
+        {
+            return;
+        }
+
         fallTimer += Time.deltaTime;
 
         if (fallTimer >= fallInterval)
         {
+            // Stop before moving if any cell would go below the board bottom (y < 0).
+            if (!CanMoveDown())
+            {
+                isFalling = false;
+                Debug.Log($"Tetromino reached the bottom: '{gameObject.name}' at board position {boardPosition}.");
+                fallTimer = 0f;
+                return;
+            }
+
             Move(Vector2Int.down);
             fallTimer = 0f;
         }
+    }
+
+    /// <summary>
+    /// Returns true when every cell can move one row downward without crossing y = 0.
+    /// </summary>
+    private bool CanMoveDown()
+    {
+        if (cells == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < cells.Length; i++)
+        {
+            Vector2Int nextCellPosition = boardPosition + cells[i] + Vector2Int.down;
+
+            if (nextCellPosition.y < 0)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public void Move(Vector2Int direction)
