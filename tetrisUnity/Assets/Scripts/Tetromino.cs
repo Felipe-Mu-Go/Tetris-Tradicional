@@ -8,9 +8,33 @@ public class Tetromino : MonoBehaviour
     // Current anchor position of the tetromino on the board.
     public Vector2Int boardPosition;
 
+    // Time (in seconds) between automatic downward moves.
+    public float fallInterval = 1f;
+
+    // Tracks elapsed time since the last automatic fall step.
+    private float fallTimer = 0f;
+
     private void Start()
     {
         Debug.Log($"Tetromino component ready on '{gameObject.name}' at board position {boardPosition}.");
+    }
+
+
+    private void Update()
+    {
+        fallTimer += Time.deltaTime;
+
+        if (fallTimer >= fallInterval)
+        {
+            Move(Vector2Int.down);
+            fallTimer = 0f;
+        }
+    }
+
+    public void Move(Vector2Int direction)
+    {
+        boardPosition += direction;
+        Debug.Log($"Tetromino '{gameObject.name}' moved to board position {boardPosition}.");
     }
 
     /// <summary>
