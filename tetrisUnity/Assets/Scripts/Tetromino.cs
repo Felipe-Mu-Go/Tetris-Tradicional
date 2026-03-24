@@ -99,9 +99,14 @@ public class Tetromino : MonoBehaviour
 
         for (int i = 0; i < cells.Length; i++)
         {
-            Vector2Int nextCellPosition = boardPosition + cells[i] + Vector2Int.down;
+            // Convert local cell coordinates to a board-space cell.
+            Vector2Int worldBoardCell = boardPosition + cells[i];
 
-            if (nextCellPosition.y < 0)
+            // Check the board-space cell one row below this specific block.
+            Vector2Int nextDownwardCell = worldBoardCell + Vector2Int.down;
+
+            // Stop only when any block would move below the bottom edge (y = 0).
+            if (nextDownwardCell.y < 0)
             {
                 return false;
             }
