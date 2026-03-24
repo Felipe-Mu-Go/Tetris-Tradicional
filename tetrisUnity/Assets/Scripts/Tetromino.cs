@@ -185,64 +185,32 @@ public class Tetromino : MonoBehaviour
     /// <summary>
     /// Creates one cube child GameObject for each tetromino cell.
     /// </summary>
-    public void BuildVisuals()
+    private void BuildVisuals()
     {
-        if (cells == null || cells.Length == 0)
-        {
-            return;
-        }
-
-        // Clear previously generated block visuals before rebuilding.
-        if (blockVisuals != null)
-        {
-            for (int i = 0; i < blockVisuals.Length; i++)
-            {
-                if (blockVisuals[i] != null)
-                {
-                    Destroy(blockVisuals[i]);
-                }
-            }
-        }
-
         blockVisuals = new GameObject[cells.Length];
 
         for (int i = 0; i < cells.Length; i++)
         {
-            GameObject block = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            block.name = $"Block_{i}";
+            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cube.transform.SetParent(this.transform);
+            cube.transform.localScale = Vector3.one * 0.9f;
 
-            // Parent each cube to this tetromino and keep scale simple.
-            block.transform.SetParent(transform, false);
-            block.transform.localScale = new Vector3(0.9f, 0.9f, 0.9f);
-
-            blockVisuals[i] = block;
+            blockVisuals[i] = cube;
         }
     }
 
     /// <summary>
     /// Updates each visual cube position from board position + local cell offset.
     /// </summary>
-    public void UpdateVisuals()
+    private void UpdateVisuals()
     {
-        if (cells == null || blockVisuals == null)
+        for (int i = 0; i < cells.Length; i++)
         {
-            return;
+            Vector2Int cell = cells[i];
+            blockVisuals[i].transform.localPosition = new Vector3(cell.x, cell.y, 0);
         }
 
-        // Keep the tetromino transform aligned to its logical board anchor.
-        transform.position = new Vector3(boardPosition.x, boardPosition.y, transform.position.z);
-
-        int count = Mathf.Min(cells.Length, blockVisuals.Length);
-
-        for (int i = 0; i < count; i++)
-        {
-            if (blockVisuals[i] == null)
-            {
-                continue;
-            }
-
-            blockVisuals[i].transform.localPosition = new Vector3(cells[i].x, cells[i].y, 0f);
-        }
+        transform.position = new Vector3(boardPosition.x, boardPosition.y, 0);
     }
 
     /// <summary>
