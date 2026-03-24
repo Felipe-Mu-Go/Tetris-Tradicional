@@ -94,6 +94,7 @@ public class Tetromino : MonoBehaviour
     {
         if (cells == null)
         {
+            Debug.LogWarning($"CanMoveDown blocked for '{gameObject.name}': cells array is null.");
             return false;
         }
 
@@ -105,13 +106,19 @@ public class Tetromino : MonoBehaviour
             // Check the board-space cell one row below this specific block.
             Vector2Int nextDownwardCell = worldBoardCell + Vector2Int.down;
 
+            Debug.Log(
+                $"CanMoveDown check '{gameObject.name}' cell[{i}] local={cells[i]} world={worldBoardCell} next={nextDownwardCell}.");
+
             // Stop only when any block would move below the bottom edge (y = 0).
             if (nextDownwardCell.y < 0)
             {
+                Debug.Log(
+                    $"CanMoveDown blocked for '{gameObject.name}': cell[{i}] would move below board bottom (next.y={nextDownwardCell.y}).");
                 return false;
             }
         }
 
+        Debug.Log($"CanMoveDown allowed for '{gameObject.name}': all cells can move one row down.");
         return true;
     }
 
