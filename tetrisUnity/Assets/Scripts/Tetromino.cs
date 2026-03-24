@@ -155,10 +155,7 @@ public class Tetromino : MonoBehaviour
     public void Move(Vector2Int direction)
     {
         boardPosition += direction;
-
-        // Keep visuals synchronized with logical board movement.
         UpdateVisuals();
-
         Debug.Log($"Tetromino '{gameObject.name}' moved to board position {boardPosition}.");
     }
 
