@@ -213,7 +213,7 @@ public class Tetromino : MonoBehaviour
 
             // Parent each cube to this tetromino and keep scale simple.
             block.transform.SetParent(transform, false);
-            block.transform.localScale = Vector3.one;
+            block.transform.localScale = new Vector3(0.9f, 0.9f, 0.9f);
 
             blockVisuals[i] = block;
         }
@@ -229,6 +229,9 @@ public class Tetromino : MonoBehaviour
             return;
         }
 
+        // Keep the tetromino transform aligned to its logical board anchor.
+        transform.position = new Vector3(boardPosition.x, boardPosition.y, transform.position.z);
+
         int count = Mathf.Min(cells.Length, blockVisuals.Length);
 
         for (int i = 0; i < count; i++)
@@ -238,8 +241,7 @@ public class Tetromino : MonoBehaviour
                 continue;
             }
 
-            Vector2Int boardCellPosition = boardPosition + cells[i];
-            blockVisuals[i].transform.localPosition = new Vector3(boardCellPosition.x, boardCellPosition.y, 0f);
+            blockVisuals[i].transform.localPosition = new Vector3(cells[i].x, cells[i].y, 0f);
         }
     }
 
